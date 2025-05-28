@@ -2,4 +2,4 @@ flask
 flask-cors
 pandas
 reportlab
-scikit-learn       # Only if you're using ML models
+gunicorn

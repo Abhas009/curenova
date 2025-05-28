@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Load the dataset
-dataset_path = r'C:\Users\VIVOBOOK PRO\Desktop\majorpr\Updated_symbipredict.csv'
+dataset_path = os.path.join(os.getcwd(), 'Updated_symbipredict.csv')
 df = pd.read_csv(dataset_path)
 
 # Clean column names
