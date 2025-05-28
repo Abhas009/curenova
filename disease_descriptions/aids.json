@@ -1,0 +1,14 @@
+{
+  "description": "AIDS is caused by the HIV virus.",
+  "tips": "Avoid sharing needles.",
+  "translations": {
+    "hindi": {
+      "description": "एड्स एचआईवी वायरस के कारण होता है।",
+      "tips": "सुइयों को साझा करने से बचें।"
+    },
+    "russian": {
+      "description": "СПИД вызывается вирусом ВИЧ.",
+      "tips": "Избегайте совместного использования игл."
+    }
+  }
+}

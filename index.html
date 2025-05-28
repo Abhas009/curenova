@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Disease Predictor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f8ff;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 700px;
+      background: #ffffff;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #00796b;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #00796b;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .button-group button {
+      flex: 1;
+    }
+
+    .result {
+      background: #e0f2f1;
+      border-left: 6px solid #00796b;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .result:hover {
+      background: #b2dfdb;
+    }
+
+    .confidence-bar {
+      height: 10px;
+      background-color: #b2dfdb;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    .confidence-bar-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+
+    .confidence-low {
+      background-color: #e53935; /* Red */
+    }
+
+    .confidence-medium {
+      background-color: #fbc02d; /* Yellow */
+    }
+
+    .confidence-high {
+      background-color: #43a047; /* Green */
+    }
+
+    .symptom-tag {
+      display: inline-block;
+      background: #00796b;
+      color: white;
+      padding: 5px 10px;
+      margin: 3px;
+      border-radius: 15px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .symptom-tag:hover {
+      background: #004d40;
+    }
+
+    .remove-symptom {
+      margin-left: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #symptom-display {
+      min-height: 40px;
+      padding: 10px;
+      border: 1px dashed #ccc;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+
+    .empty-symptoms {
+      color: #999;
+      font-style: italic;
+    }
+
+    .error {
+      color: red;
+      background: #ffebee;
+      border-left: 6px solid #f44336;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .no-results {
+      color: #666;
+      text-align: center;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Disease Prediction</h2>
+
+    <label for="language">Select Language:</label>
+    <select id="language">
+      <option value="">English</option>
+      <option value="hindi">Hindi</option>
+      <option value="russian">Russian</option>
+    </select>
+
+    <label for="symptom-input">Type a symptom:</label>
+    <input type="text" id="symptom-input" list="symptom-list" placeholder="Start typing..." />
+    <datalist id="symptom-list"></datalist>
+    <button type="button" onclick="addSymptom()">Add Symptom</button>
+    
+    <div id="selected-symptoms" style="margin-top: 15px;">
+      <strong>Selected Symptoms:</strong>
+      <div id="symptom-display" style="margin-top: 5px; min-height: 20px; padding: 5px; border: 1px dashed #ccc; border-radius: 5px; background: #f9f9f9;"></div>
+    </div>
+
+    <div class="button-group">
+      <button onclick="predict()">Predict Disease</button>
+      <button id="downloadBtn" onclick="downloadPDF()" disabled>Download PDF</button>
+    </div>
+
+    <div id="results"></div>
+    
+    <h3 style="margin-top: 40px;">🕓 History</h3>
+    <div id="history"></div>
+  </div>
+
+  <script>
+    let lastPredictions = []; // Global variable to store last predictions
+    let selectedSymptoms = []; // Track selected symptoms
+    let symptomHistory = []; // In-memory history storage
+
+    function renderHistory() {
+      const historyDiv = document.getElementById('history');
+      
+      if (symptomHistory.length === 0) {
+        historyDiv.innerHTML = "<p>No history yet.</p>";
+        return;
+      }
+      
+      historyDiv.innerHTML = '';
+      symptomHistory.forEach((entry, index) => {
+        const item = document.createElement('div');
+        item.style.cssText = 'background: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; border-left: 3px solid #00796b;';
+        item.innerHTML = `
+          <p><strong>${entry.date}</strong></p>
+          <p style="margin-bottom: 10px;">Symptoms: ${entry.symptoms.join(', ')}</p>
+          <button onclick="reuseSymptoms(${index})" style="padding: 5px 10px; background: #00796b; color: white; border: none; border-radius: 3px; cursor: pointer;">Use These</button>
+        `;
+        historyDiv.appendChild(item);
+      });
+    }
+
+    function reuseSymptoms(index) {
+      if (symptomHistory[index]) {
+        selectedSymptoms = [...symptomHistory[index].symptoms];
+        updateSymptomDisplay();
+      }
+    }
+
+    function toggleDetails(element) {
+      const details = element.querySelector('.details');
+      if (details) {
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    function getConfidenceClass(score) {
+      if (score >= 0.7) return 'confidence-high';
+      if (score >= 0.4) return 'confidence-medium';
+      return 'confidence-low';
+    }
+
+    function addSymptom() {
+      const input = document.getElementById('symptom-input');
+      const symptom = input.value.trim().toLowerCase();
+      
+      if (symptom && !selectedSymptoms.includes(symptom)) {
+        selectedSymptoms.push(symptom);
+        updateSymptomDisplay();
+      }
+      input.value = '';
+    }
+
+    function removeSymptom(symptom) {
+      selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+      updateSymptomDisplay();
+    }
+
+    function updateSymptomDisplay() {
+      const display = document.getElementById('symptom-display');
+      const downloadBtn = document.getElementById('downloadBtn');
+      
+      if (selectedSymptoms.length === 0) {
+        display.innerHTML = '<span class="empty-symptoms">No symptoms selected</span>';
+      } else {
+        display.innerHTML = selectedSymptoms.map(s => 
+          `<span class="symptom-tag">${s}<span class="remove-symptom" onclick="removeSymptom('${s}')">&times;</span></span>`
+        ).join('');
+      }
+      
+      // Reset predictions when symptoms change
+      lastPredictions = [];
+      downloadBtn.disabled = true;
+      document.getElementById('results').innerHTML = '';
+    }
+
+    function predict() {
+      const language = document.getElementById('language').value;
+      const resultsDiv = document.getElementById('results');
+      const downloadBtn = document.getElementById('downloadBtn');
+      
+      // Validation
+      if (selectedSymptoms.length === 0) {
+        resultsDiv.innerHTML = '<div class="error">Please add at least one symptom.</div>';
+        return;
+      }
+
+      resultsDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Loading...</div>';
+      downloadBtn.disabled = true;
+
+      fetch('http://127.0.0.1:5000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symptoms: selectedSymptoms, language: language })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          lastPredictions = data; // Save for PDF generation
+          downloadBtn.disabled = false;
+          
+          resultsDiv.innerHTML = '';
+          data.forEach((d, i) => {
+            const confidencePercentage = (d.confidence_score * 100).toFixed(0);
+            resultsDiv.innerHTML += `
+              <div class="result" onclick="toggleDetails(this)">
+                <h3>${i + 1}. ${d.prognosis}</h3>
+                <div class="confidence-bar">
+                  <div class="confidence-bar-fill ${getConfidenceClass(d.confidence_score)}" style="width:${confidencePercentage}%"></div>
+                </div>
+                <p><strong>Confidence:</strong> ${confidencePercentage}%</p>
+                <p><strong>Match Score:</strong> ${d.match_score}</p>
+                <div class="details" style="display: none;">
+                  <p><strong>Medication:</strong> ${d.medication}</p>
+                  <p><strong>Description:</strong> ${d.description}</p>
+                  <p><strong>Tips:</strong> ${d.tips}</p>
+                </div>
+              </div>
+            `;
+          });
+          
+          // Save symptoms to history
+          if (selectedSymptoms.length > 0) {
+            const entry = {
+              date: new Date().toLocaleString(),
+              symptoms: [...selectedSymptoms]
+            };
+            symptomHistory.unshift(entry); // Add to start
+            symptomHistory = symptomHistory.slice(0, 10); // Keep max 10
+            renderHistory();
+          }
+        } else if (data.message) {
+          resultsDiv.innerHTML = `<div class="no-results">${data.message}</div>`;
+        } else {
+          resultsDiv.innerHTML = '<div class="no-results">No strong prediction found.</div>';
+        }
+      })
+      .catch(err => {
+        console.error('Prediction error:', err);
+        resultsDiv.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+      });
+    }
+
+    function downloadPDF() {
+      if (lastPredictions.length === 0) {
+        alert("Please predict diseases first before downloading PDF.");
+        return;
+      }
+
+      const downloadBtn = document.getElementById('downloadBtn');
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = 'Generating PDF...';
+
+      fetch('http://127.0.0.1:5000/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ predictions: lastPredictions })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.filename) {
+          // Create download link
+          const a = document.createElement('a');
+          a.href = `http://127.0.0.1:5000/${data.filename}`;
+          a.download = data.filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          
+          alert("PDF generated successfully!");
+        } else {
+          alert("Failed to generate PDF: " + (data.error || "Unknown error"));
+        }
+      })
+      .catch(err => {
+        console.error('PDF generation error:', err);
+        alert("Error generating PDF: " + err.message);
+      })
+      .finally(() => {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = 'Download PDF';
+      });
+    }
+
+    // Allow Enter key to add symptom
+    document.getElementById('symptom-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        addSymptom();
+      }
+    });
+
+    // Initialize symptom display and history
+    updateSymptomDisplay();
+    renderHistory();
+
+    // Fetch symptoms and populate the datalist for autocomplete
+    fetch('http://127.0.0.1:5000/symptoms')
+      .then(res => res.json())
+      .then(symptoms => {
+        const datalist = document.getElementById('symptom-list');
+        symptoms.forEach(symptom => {
+          const option = document.createElement('option');
+          option.value = symptom;
+          datalist.appendChild(option);
+        });
+      })
+      .catch(err => {
+        console.error('Failed to load symptom suggestions:', err);
+      });
+  </script>
+</body>
+</html>

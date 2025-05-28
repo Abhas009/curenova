@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: curenova-api
+    env: python
+    buildCommand: ""
+    startCommand: python predict.py
+    plan: free
+
+
+
+
