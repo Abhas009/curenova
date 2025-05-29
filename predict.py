@@ -33,7 +33,7 @@ description_folder = os.path.join(os.getcwd(), "disease_descriptions")
 # Configure Gemini API (YOUR API KEY GOES HERE)
 # It's best practice to use environment variables for API keys in production
 # For development, you can hardcode it here, but be very careful
-genai.configure(api_key='AIzaSyDXFhlMqSlENMbj31MKPbrM4lloHkRc20M') # <--- REPLACE WITH YOUR ACTUAL GEMINI API KEY
+genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyDXFhlMqSlENMbj31MKPbrM4lloHkRc20M'))
 
 @app.route('/chat', methods=['POST'])
 def chat():
