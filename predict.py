@@ -30,10 +30,10 @@ df[symptom_columns] = df[symptom_columns].applymap(lambda x: str(x).strip().lowe
 # Ensure this folder exists and contains your disease description JSON files
 description_folder = os.path.join(os.getcwd(), "disease_descriptions")
 
-# Configure Gemini API (YOUR API KEY GOES HERE)
-# It's best practice to use environment variables for API keys in production
-# For development, you can hardcode it here, but be very careful
-genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyDXFhlMqSlENMbj31MKPbrM4lloHkRc20M'))
+# Configure Gemini API using environment variable for security
+# Get API key from environment variable, fallback to hardcoded for development
+api_key = os.getenv('GEMINI_API_KEY', 'AIzaSyDXFhlMqSlENMbj31MKPbrM4lloHkRc20M')
+genai.configure(api_key=api_key)
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -46,7 +46,7 @@ def chat():
         return jsonify({'response': 'Please provide a message.'}), 400
 
     # Modified line
-    model = genai.GenerativeModel('gemini-2.0-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
     try:
         # For a basic chat, just send the user message
@@ -268,6 +268,11 @@ def generate_pdf():
         print(f"PDF generation error: {e}") # Log error on server side
         return jsonify({'error': str(e)}), 500
 
+# Health check endpoint for deployment
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'healthy', 'message': 'API is running'}), 200
+
 if __name__ == '__main__':
     # Ensure the description folder exists
     if not os.path.exists(description_folder):
@@ -276,4 +281,5 @@ if __name__ == '__main__':
 
     # Updated to support deployment with PORT from environment variable
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True) # debug=True is good for development, disable in production
+    debug_mode = os.environ.get("FLASK_ENV") == "development"
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
