@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: curenova-api
+    name: curenova
     env: python
     buildCommand: ""
-    startCommand: gunicorn predict:app
+    startCommand: python predict.py
     plan: free
