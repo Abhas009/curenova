@@ -2,19 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Disease Predictor</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f0f8ff;
-      padding: 40px;
+      padding: 20px;
+      margin: 0;
     }
 
     .container {
       max-width: 700px;
       background: #ffffff;
-      margin: auto;
-      padding: 30px;
+      margin: 20px auto;
+      padding: 20px;
       border-radius: 10px;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     }
@@ -22,22 +24,23 @@
     h2 {
       text-align: center;
       color: #00796b;
+      margin-bottom: 20px;
     }
 
     label {
       font-weight: bold;
       display: block;
       margin-bottom: 8px;
-      margin-top: 20px;
+      margin-top: 15px;
     }
 
     input, select, button {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
+      padding: 10px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px;
       box-sizing: border-box;
     }
 
@@ -60,11 +63,14 @@
 
     .button-group {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
+      margin-bottom: 20px;
     }
 
     .button-group button {
-      flex: 1;
+      flex: 1 1 auto;
+      min-width: 120px;
     }
 
     .result {
@@ -96,15 +102,15 @@
     }
 
     .confidence-low {
-      background-color: #e53935; /* Red */
+      background-color: #e53935;
     }
 
     .confidence-medium {
-      background-color: #fbc02d; /* Yellow */
+      background-color: #fbc02d;
     }
 
     .confidence-high {
-      background-color: #43a047; /* Green */
+      background-color: #43a047;
     }
 
     .symptom-tag {
@@ -116,6 +122,7 @@
       border-radius: 15px;
       font-size: 14px;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .symptom-tag:hover {
@@ -134,6 +141,7 @@
       border: 1px dashed #ccc;
       border-radius: 5px;
       background: #f9f9f9;
+      margin-bottom: 15px;
     }
 
     .empty-symptoms {
@@ -157,6 +165,108 @@
       background: #f5f5f5;
       border-radius: 6px;
     }
+
+    .chat-message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      word-wrap: break-word;
+    }
+
+    .user-message {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+
+    .bot-message {
+      background: #f3e5f5;
+      border-left: 44px solid #9c27b0;
+    }
+
+    .loading-message {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      font-style: italic;
+    }
+
+    /* Autocomplete Styles */
+    .autocomplete-container {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .autocomplete-suggestions {
+        position: absolute;
+        border: 1px solid #d4d4d4;
+        border-bottom: none;
+        border-top: none;
+        z-index: 99;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: white;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        border-radius: 0 0 8px 8px;
+    }
+
+    .autocomplete-suggestions div {
+        padding: 10px;
+        cursor: pointer;
+        background-color: #fff;
+        border-bottom: 1px solid #d4d4d4;
+    }
+
+    .autocomplete-suggestions div:hover {
+        background-color: #e9e9e9;
+    }
+
+    .autocomplete-active {
+        background-color: DodgerBlue !important;
+        color: #ffffff;
+    }
+
+    /* Disclaimer Warning Style */
+    .disclaimer-warning {
+      background-color: #fff3e0;
+      border: 1px solid #ff9800;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 0.95em;
+      color: #e65100;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      .container {
+        margin: 10px auto;
+        padding: 15px;
+      }
+      input, select, button {
+        font-size: 14px;
+        padding: 8px;
+      }
+      .button-group button {
+        flex: 1 1 100%;
+      }
+      .symptom-tag {
+        font-size: 12px;
+        padding: 4px 8px;
+      }
+      #chatMessages {
+        height: 200px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -170,9 +280,39 @@
       <option value="russian">Russian</option>
     </select>
 
+    <label for="age">Age:</label>
+    <input type="number" id="age" min="0" max="120" placeholder="Enter your age" value="30">
+
+    <label for="gender">Gender:</label>
+    <select id="gender">
+      <option value="">Select Gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="other">Other</option>
+      <option value="prefer_not_to_say">Prefer not to say</option>
+    </select>
     <label for="symptom-input">Type a symptom:</label>
-    <input type="text" id="symptom-input" list="symptom-list" placeholder="Start typing..." />
-    <datalist id="symptom-list"></datalist>
+    <div class="autocomplete-container">
+        <input type="text" id="symptom-input" placeholder="Start typing..." autocomplete="off"/>
+        <div id="autocomplete-suggestions" class="autocomplete-suggestions" style="display: none;"></div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <label for="symptom-severity" style="margin: 0; flex-shrink: 0;">Severity:</label>
+        <select id="symptom-severity" style="flex-grow: 1; margin-bottom: 0;" onchange="toggleSeveritySlider()">
+            <option value="5">Moderate</option>
+            <option value="1">Mild</option>
+            <option value="8">Severe</option>
+            <option value="custom">Custom (1-10)</option>
+        </select>
+    </div>
+
+    <div id="custom-severity-slider" style="display: none; margin-bottom: 15px;">
+        <label for="severity-slider">Custom Severity (1-10):</label>
+        <input type="range" id="severity-slider" min="1" max="10" value="5" oninput="updateSliderValue(this.value)">
+        <p id="slider-value" style="text-align: center; font-weight: bold;">5</p>
+    </div>
+
     <button type="button" onclick="addSymptom()">Add Symptom</button>
     
     <div id="selected-symptoms" style="margin-top: 15px;">
@@ -183,6 +323,30 @@
     <div class="button-group">
       <button onclick="predict()">Predict Disease</button>
       <button id="downloadBtn" onclick="downloadPDF()" disabled>Download PDF</button>
+      <button onclick="toggleChat()" style="background-color: #4285f4;">💬 AI Chat</button>
+    </div>
+
+    <div id="emergencyAlert" style="display: none; background-color: #ffebee; border: 2px solid #ef5350; border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; color: #d32f2f; font-weight: bold;">
+        <p style="margin: 0; font-size: 1.1em;">🚨 Immediate Medical Attention Recommended! 🚨</p>
+        <p style="margin: 5px 0 0 0;">One or more of your symptoms may indicate a medical emergency.</p>
+        <p style="margin: 5px 0 0 0; font-size: 1.2em; color: #b71c1c;"><strong>Please call your local emergency services (e.g., 112 in India) or seek immediate medical help.</strong></p>
+        <button onclick="hideEmergencyAlert()" style="background-color: #ef5350; color: white; padding: 8px 15px; border: none; border-radius: 5px; margin-top: 10px; cursor: pointer; width: auto;">Acknowledge & Proceed to Prediction</button>
+    </div>
+
+    <div id="chatSection" style="display: none; margin-top: 20px; border: 2px solid #4285f4; border-radius: 10px; padding: 20px; background: #f8f9ff;">
+      <h3 style="color: #4285f4; margin-top: 0;">🤖 AI Health Assistant (Powered by Gemini)</h3>
+      <div id="chatMessages" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: white; margin-bottom: 15px;">
+        <div class="chat-message bot-message">
+          <strong>AI Assistant:</strong> Hi! I'm your AI health assistant. I can help explain your symptoms, provide health information, or answer questions about your predictions. What would you like to know?
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="chatInput" placeholder="Ask me about your symptoms or health concerns..." style="flex: 1; margin: 0;">
+        <button onclick="sendMessage()" style="width: auto; margin: 0; background-color: #4285f4;">Send</button>
+      </div>
+      <p class="disclaimer-warning">
+        ⚠️ **Disclaimer:** This AI assistant is for informational purposes only. **Always consult healthcare professionals for medical advice.**
+      </p>
     </div>
 
     <div id="results"></div>
@@ -192,197 +356,485 @@
   </div>
 
   <script>
-  let lastPredictions = [];
-  let selectedSymptoms = [];
-  let symptomHistory = [];
+    let lastPredictions = [];
+    let selectedSymptoms = [];
+    let symptomHistory = [];
+    let allSymptoms = []; // Store all fetched symptoms for autocomplete
 
-  function renderHistory() {
-    const historyDiv = document.getElementById('history');
-    if (symptomHistory.length === 0) {
-      historyDiv.innerHTML = "<p>No history yet.</p>";
-      return;
-    }
-    historyDiv.innerHTML = '';
-    symptomHistory.forEach((entry, index) => {
-      const item = document.createElement('div');
-      item.style.cssText = 'background: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; border-left: 3px solid #00796b;';
-      item.innerHTML = `
-        <p><strong>${entry.date}</strong></p>
-        <p>Symptoms: ${entry.symptoms.join(', ')}</p>
-        <button onclick="reuseSymptoms(${index})" style="padding: 5px 10px; background: #00796b; color: white; border: none; border-radius: 3px;">Use These</button>
-      `;
-      historyDiv.appendChild(item);
+    // Emergency symptoms list
+    const emergencySymptomsList = [
+      'chest pain', 'difficulty breathing', 'severe headache',
+      'loss of consciousness', 'severe bleeding', 'sudden weakness or numbness on one side of the body',
+      'sudden vision changes', 'slurred speech', 'seizure', 'high fever with stiff neck',
+      'unexplained severe abdominal pain', 'sudden dizziness or fainting'
+    ];
+
+    // --- Autocomplete Functions ---
+    const symptomInput = document.getElementById('symptom-input');
+    const suggestionsContainer = document.getElementById('autocomplete-suggestions');
+    let currentFocus = -1; // For keyboard navigation in suggestions
+
+    symptomInput.addEventListener('input', function() {
+        const val = this.value;
+        closeAllLists(); // Close any already open lists
+        if (!val) { return false; }
+        currentFocus = -1;
+
+        const filteredSuggestions = allSymptoms.filter(symptom => 
+            symptom.toLowerCase().includes(val.toLowerCase())
+        ).slice(0, 10); // Limit to top 10 suggestions
+
+        if (filteredSuggestions.length === 0) {
+            suggestionsContainer.style.display = 'none';
+            return false;
+        }
+
+        suggestionsContainer.style.display = 'block';
+        filteredSuggestions.forEach(symptom => {
+            const b = document.createElement('div');
+            b.innerHTML = "<strong>" + symptom.substr(0, val.length) + "</strong>";
+            b.innerHTML += symptom.substr(val.length);
+            b.innerHTML += "<input type='hidden' value='" + symptom + "'>";
+            b.addEventListener('click', function() {
+                symptomInput.value = this.getElementsByTagName("input")[0].value;
+                closeAllLists();
+                symptomInput.focus();
+            });
+            suggestionsContainer.appendChild(b);
+        });
     });
-  }
 
-  function reuseSymptoms(index) {
-    if (symptomHistory[index]) {
-      selectedSymptoms = [...symptomHistory[index].symptoms];
-      updateSymptomDisplay();
-    }
-  }
+    symptomInput.addEventListener('keydown', function(e) {
+        let x = suggestionsContainer.getElementsByTagName("div");
+        if (x.length === 0) return;
 
-  function toggleDetails(element) {
-    const details = element.querySelector('.details');
-    if (details) {
-      details.style.display = details.style.display === 'none' ? 'block' : 'none';
-    }
-  }
+        if (e.keyCode == 40) { // Arrow Down
+            currentFocus++;
+            addActive(x);
+        } else if (e.keyCode == 38) { // Arrow Up
+            currentFocus--;
+            addActive(x);
+        } else if (e.keyCode == 13) { // Enter key
+            e.preventDefault();
+            if (currentFocus > -1) {
+                if (x[currentFocus]) x[currentFocus].click();
+            } else {
+                addSymptom(); // If enter is pressed without selecting from dropdown, add current input
+            }
+        }
+    });
 
-  function getConfidenceClass(score) {
-    if (score >= 0.7) return 'confidence-high';
-    if (score >= 0.4) return 'confidence-medium';
-    return 'confidence-low';
-  }
-
-  function addSymptom() {
-    const input = document.getElementById('symptom-input');
-    const symptom = input.value.trim().toLowerCase();
-    if (symptom && !selectedSymptoms.includes(symptom)) {
-      selectedSymptoms.push(symptom);
-      updateSymptomDisplay();
-    }
-    input.value = '';
-  }
-
-  function removeSymptom(symptom) {
-    selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
-    updateSymptomDisplay();
-  }
-
-  function updateSymptomDisplay() {
-    const display = document.getElementById('symptom-display');
-    const downloadBtn = document.getElementById('downloadBtn');
-    if (selectedSymptoms.length === 0) {
-      display.innerHTML = '<span class="empty-symptoms">No symptoms selected</span>';
-    } else {
-      display.innerHTML = selectedSymptoms.map(s =>
-        `<span class="symptom-tag">${s}<span class="remove-symptom" onclick="removeSymptom('${s}')">&times;</span></span>`
-      ).join('');
-    }
-    lastPredictions = [];
-    downloadBtn.disabled = true;
-    document.getElementById('results').innerHTML = '';
-  }
-
-  function predict() {
-    const language = document.getElementById('language').value;
-    const resultsDiv = document.getElementById('results');
-    const downloadBtn = document.getElementById('downloadBtn');
-
-    if (selectedSymptoms.length === 0) {
-      resultsDiv.innerHTML = '<div class="error">Please add at least one symptom.</div>';
-      return;
+    function addActive(x) {
+        if (!x) return false;
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        x[currentFocus].classList.add("autocomplete-active");
+        x[currentFocus].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    resultsDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Loading...</div>';
-    downloadBtn.disabled = true;
+    function removeActive(x) {
+        for (let i = 0; i < x.length; i++) {
+            x[i].classList.remove("autocomplete-active");
+        }
+    }
 
-    fetch('https://curenova.onrender.com/predict', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symptoms: selectedSymptoms, language })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (Array.isArray(data) && data.length > 0) {
-        lastPredictions = data;
-        downloadBtn.disabled = false;
-        resultsDiv.innerHTML = '';
-        data.forEach((d, i) => {
-          const confidencePercentage = (d.confidence_score * 100).toFixed(0);
-          resultsDiv.innerHTML += `
-            <div class="result" onclick="toggleDetails(this)">
-              <h3>${i + 1}. ${d.prognosis}</h3>
-              <div class="confidence-bar">
-                <div class="confidence-bar-fill ${getConfidenceClass(d.confidence_score)}" style="width:${confidencePercentage}%"></div>
-              </div>
-              <p><strong>Confidence:</strong> ${confidencePercentage}%</p>
-              <p><strong>Match Score:</strong> ${d.match_score}</p>
-              <div class="details" style="display: none;">
-                <p><strong>Medication:</strong> ${d.medication}</p>
-                <p><strong>Description:</strong> ${d.description}</p>
-                <p><strong>Tips:</strong> ${d.tips}</p>
-              </div>
-            </div>
-          `;
+    function closeAllLists(elmnt) {
+        let x = document.getElementsByClassName("autocomplete-suggestions");
+        for (let i = 0; i < x.length; i++) {
+            if (elmnt != x[i] && elmnt != symptomInput) {
+                x[i].style.display = 'none';
+                x[i].innerHTML = ''; // Clear suggestions
+            }
+        }
+    }
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
+    // --- End Autocomplete Functions ---
+
+
+    function toggleChat() {
+      const chatSection = document.getElementById('chatSection');
+      chatSection.style.display = chatSection.style.display === 'none' ? 'block' : 'none';
+      if (chatSection.style.display === 'block') {
+        document.getElementById('chatInput').focus();
+      }
+    }
+
+    async function sendMessage() {
+      const chatInput = document.getElementById('chatInput');
+      const userMessage = chatInput.value.trim();
+      
+      if (!userMessage) return;
+
+      addChatMessage(userMessage, 'user');
+      chatInput.value = '';
+      
+      addChatMessage('Thinking...', 'loading');
+      
+      try {
+        const dataToSend = {
+          message: userMessage,
+          selected_symptoms: selectedSymptoms.map(s => `${s.name} (Severity: ${s.severity})`),
+          last_predictions: lastPredictions
+        };
+
+        const response = await fetch('https://curenova.onrender.com/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dataToSend)
         });
 
-        // Save to history
-        symptomHistory.unshift({ date: new Date().toLocaleString(), symptoms: [...selectedSymptoms] });
-        symptomHistory = symptomHistory.slice(0, 10);
-        renderHistory();
-      } else if (data.message) {
-        resultsDiv.innerHTML = `<div class="no-results">${data.message}</div>`;
-      } else {
-        resultsDiv.innerHTML = '<div class="no-results">No strong prediction found.</div>';
-      }
-    })
-    .catch(err => {
-      console.error('Prediction error:', err);
-      resultsDiv.innerHTML = `<div class="error">Error: ${err.message}</div>`;
-    });
-  }
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.response || 'Failed to get AI response from backend');
+        }
 
-  function downloadPDF() {
-    if (lastPredictions.length === 0) {
-      alert("Please predict diseases first before downloading PDF.");
-      return;
+        const data = await response.json();
+        
+        removeLastMessage();
+        addChatMessage(data.response, 'bot'); 
+        
+      } catch (error) {
+        console.error('Chat API Error:', error);
+        removeLastMessage();
+        addChatMessage('Sorry, I encountered an error. Please try again later.', 'bot');
+      }
     }
 
-    const downloadBtn = document.getElementById('downloadBtn');
-    downloadBtn.disabled = true;
-    downloadBtn.textContent = 'Generating PDF...';
+    function renderMarkdown(markdownText) {
+        let htmlText = markdownText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        htmlText = htmlText.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+        htmlText = htmlText.replace(/\n/g, '<br>');
+        return htmlText;
+    }
 
-    fetch('https://curenova.onrender.com/generate-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ predictions: lastPredictions })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.filename) {
-        const a = document.createElement('a');
-        a.href = `https://curenova.onrender.com/${data.filename}`;
-        a.download = data.filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        alert("PDF generated successfully!");
-      } else {
-        alert("Failed to generate PDF: " + (data.error || "Unknown error"));
+    function addChatMessage(message, type) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      
+      if (type === 'user') {
+        messageDiv.className = 'chat-message user-message';
+        messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+      } else if (type === 'bot') {
+        messageDiv.className = 'chat-message bot-message';
+        messageDiv.innerHTML = `<strong>AI Assistant:</strong> ${renderMarkdown(message)}`;
+      } else if (type === 'loading') {
+        messageDiv.className = 'chat-message loading-message';
+        messageDiv.innerHTML = `<strong>AI Assistant:</strong> ${message}`;
       }
-    })
-    .catch(err => {
-      console.error('PDF generation error:', err);
-      alert("Error generating PDF: " + err.message);
-    })
-    .finally(() => {
-      downloadBtn.disabled = false;
-      downloadBtn.textContent = 'Download PDF';
-    });
-  }
+      
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
-  document.getElementById('symptom-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') addSymptom();
-  });
+    function removeLastMessage() {
+      const chatMessages = document.getElementById('chatMessages');
+      const lastMessage = chatMessages.lastElementChild;
+      if (lastMessage && lastMessage.classList.contains('loading-message')) {
+        chatMessages.removeChild(lastMessage);
+      }
+    }
 
-  updateSymptomDisplay();
-  renderHistory();
+    function hideEmergencyAlert() {
+        document.getElementById('emergencyAlert').style.display = 'none';
+    }
 
-  fetch('https://curenova.onrender.com/symptoms')
-    .then(res => res.json())
-    .then(symptoms => {
-      const datalist = document.getElementById('symptom-list');
-      symptoms.forEach(symptom => {
-        const option = document.createElement('option');
-        option.value = symptom;
-        datalist.appendChild(option);
+    function toggleSeveritySlider() {
+        const severitySelect = document.getElementById('symptom-severity');
+        const customSliderDiv = document.getElementById('custom-severity-slider');
+        const slider = document.getElementById('severity-slider');
+        const sliderValueDisplay = document.getElementById('slider-value');
+
+        if (severitySelect.value === 'custom') {
+            customSliderDiv.style.display = 'block';
+            slider.value = '5';
+            sliderValueDisplay.textContent = '5';
+        } else {
+            customSliderDiv.style.display = 'none';
+        }
+    }
+
+    function updateSliderValue(value) {
+        document.getElementById('slider-value').textContent = value;
+    }
+
+    function renderHistory() {
+      const historyDiv = document.getElementById('history');
+      
+      if (symptomHistory.length === 0) {
+        historyDiv.innerHTML = "<p class='empty-symptoms'>No prediction history yet.</p>";
+        return;
+      }
+      
+      historyDiv.innerHTML = '';
+      symptomHistory.forEach((entry, index) => {
+        const item = document.createElement('div');
+        item.style.cssText = 'background: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; border-left: 3px solid #00796b;';
+        const symptomsText = entry.symptoms.map(s => `${s.name} (Sev: ${s.severity})`).join(', ');
+        item.innerHTML = `
+          <p><strong>${entry.date}</strong></p>
+          <p style="margin-bottom: 10px;">Symptoms: ${symptomsText}</p>
+          <button onclick="reuseSymptoms(${index})" style="padding: 5px 10px; background: #00796b; color: white; border: none; border-radius: 3px; cursor: pointer;">Use These Symptoms</button>
+        `;
+        historyDiv.appendChild(item);
       });
-    })
-    .catch(err => {
-      console.error('Failed to load symptom suggestions:', err);
+    }
+
+    function reuseSymptoms(index) {
+      if (symptomHistory[index]) {
+        selectedSymptoms = JSON.parse(JSON.stringify(symptomHistory[index].symptoms));
+        updateSymptomDisplay();
+      }
+    }
+
+    function toggleDetails(element) {
+      const details = element.querySelector('.details');
+      if (details) {
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    function getConfidenceClass(score) {
+      if (score >= 0.7) return 'confidence-high';
+      if (score >= 0.4) return 'confidence-medium';
+      return 'confidence-low';
+    }
+
+    function addSymptom() {
+      const symptomName = symptomInput.value.trim().toLowerCase();
+      const severitySelect = document.getElementById('symptom-severity');
+      const severitySlider = document.getElementById('severity-slider');
+
+      let symptomSeverity;
+      if (severitySelect.value === 'custom') {
+          symptomSeverity = parseInt(severitySlider.value, 10);
+      } else {
+          symptomSeverity = parseInt(severitySelect.value, 10);
+      }
+      
+      if (symptomName) {
+        const existingSymptomIndex = selectedSymptoms.findIndex(s => s.name === symptomName);
+        if (existingSymptomIndex === -1) {
+            selectedSymptoms.push({ name: symptomName, severity: symptomSeverity });
+        } else {
+            selectedSymptoms[existingSymptomIndex].severity = symptomSeverity;
+        }
+        updateSymptomDisplay();
+      }
+      symptomInput.value = '';
+      closeAllLists();
+      severitySelect.value = '5';
+      document.getElementById('slider-value').textContent = '5';
+      toggleSeveritySlider();
+      symptomInput.focus();
+    }
+
+    function removeSymptom(symptomNameToRemove) {
+      selectedSymptoms = selectedSymptoms.filter(symptom => symptom.name !== symptomNameToRemove);
+      updateSymptomDisplay();
+    }
+
+    function updateSymptomDisplay() {
+      const display = document.getElementById('symptom-display');
+      const downloadBtn = document.getElementById('downloadBtn');
+      
+      if (selectedSymptoms.length === 0) {
+        display.innerHTML = '<span class="empty-symptoms">No symptoms selected</span>';
+      } else {
+        display.innerHTML = selectedSymptoms.map(s => 
+          `<span class="symptom-tag">${s.name} (Sev: ${s.severity})<span class="remove-symptom" onclick="removeSymptom('${s.name}')">&times;</span></span>`
+        ).join('');
+      }
+      
+      lastPredictions = [];
+      downloadBtn.disabled = true;
+      document.getElementById('results').innerHTML = '';
+    }
+
+    async function predict() {
+      const language = document.getElementById('language').value;
+      const resultsDiv = document.getElementById('results');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const emergencyAlertDiv = document.getElementById('emergencyAlert');
+
+      // Get age and gender values
+      const age = document.getElementById('age').value;
+      const gender = document.getElementById('gender').value;
+
+      if (selectedSymptoms.length === 0) {
+        resultsDiv.innerHTML = '<div class="error">Please add at least one symptom before predicting.</div>';
+        return;
+      }
+
+      // Basic validation for age/gender
+      if (!age || parseInt(age, 10) < 0 || parseInt(age, 10) > 120) {
+        resultsDiv.innerHTML = '<div class="error">Please enter a valid age (0-120).</div>';
+        return;
+      }
+      if (!gender) {
+        resultsDiv.innerHTML = '<div class="error">Please select your gender.</div>';
+        return;
+      }
+
+      const hasEmergencySymptom = selectedSymptoms.some(symptom => 
+        emergencySymptomsList.includes(symptom.name)
+      );
+
+      if (hasEmergencySymptom) {
+        emergencyAlertDiv.style.display = 'block';
+        resultsDiv.innerHTML = '';
+        // return; // Uncomment to stop prediction here if emergency
+      } else {
+        emergencyAlertDiv.style.display = 'none';
+      }
+
+      resultsDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Loading prediction...</div>';
+      downloadBtn.disabled = true;
+
+      try {
+        const response = await fetch('https://curenova.onrender.com/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            symptoms: selectedSymptoms.map(s => s.name), 
+            language: language,
+            symptom_details: selectedSymptoms,
+            // Include age and gender in the request body
+            age: parseInt(age, 10),
+            gender: gender 
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (Array.isArray(data) && data.length > 0) {
+            lastPredictions = data;
+            downloadBtn.disabled = false;
+            
+            resultsDiv.innerHTML = '';
+            data.forEach((d, i) => {
+              const confidencePercentage = (d.confidence_score * 100).toFixed(0);
+              resultsDiv.innerHTML += `
+                <div class="result" onclick="toggleDetails(this)">
+                  <h3>${i + 1}. ${d.prognosis}</h3>
+                  <div class="confidence-bar">
+                    <div class="confidence-bar-fill ${getConfidenceClass(d.confidence_score)}" style="width:${confidencePercentage}%"></div>
+                  </div>
+                  <p><strong>Confidence:</strong> ${confidencePercentage}%</p>
+                  <p><strong>Match Score:</strong> ${d.match_score}</p>
+                  <div class="details" style="display: none;">
+                    <p><strong>Medication:</strong> ${d.medication}</p>
+                    <p><strong>Description:</strong> ${d.description}</p>
+                    <p><strong>Tips:</strong> ${d.tips}</p>
+                  </div>
+                </div>
+              `;
+            });
+            
+            if (selectedSymptoms.length > 0) {
+              const entry = {
+                date: new Date().toLocaleString(),
+                symptoms: JSON.parse(JSON.stringify(selectedSymptoms))
+              };
+              symptomHistory.unshift(entry);
+              symptomHistory = symptomHistory.slice(0, 10);
+              renderHistory();
+            }
+          } else if (data.message) {
+            resultsDiv.innerHTML = `<div class="no-results">${data.message}</div>`;
+          } else {
+            resultsDiv.innerHTML = '<div class="no-results">No strong prediction found.</div>';
+          }
+        } else {
+            resultsDiv.innerHTML = `<div class="error">Error: ${data.error || 'An unknown error occurred on the server.'}</div>`;
+        }
+      } catch (err) {
+        console.error('Prediction fetch error:', err);
+        resultsDiv.innerHTML = `<div class="error">Error connecting to the prediction service: ${err.message}. Please ensure the backend is running.</div>`;
+      } finally {
+        downloadBtn.disabled = lastPredictions.length === 0;
+      }
+    }
+
+    async function downloadPDF() {
+      if (lastPredictions.length === 0) {
+        alert("Please predict diseases first before downloading PDF.");
+        return;
+      }
+
+      const downloadBtn = document.getElementById('downloadBtn');
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = 'Generating PDF...';
+
+      try {
+        const response = await fetch('https://curenova.onrender.com/generate-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ predictions: lastPredictions })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (data.filename) {
+            const a = document.createElement('a');
+            a.href = `https://curenova.onrender.com/${data.filename}`;
+            a.download = data.filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert("PDF generated successfully!");
+          } else {
+            alert("Failed to generate PDF: " + (data.error || "Unknown error from server"));
+          }
+        } else {
+            alert("Failed to generate PDF: " + (data.error || "Unknown error during PDF generation."));
+        }
+      } catch (err) {
+        console.error('PDF generation fetch error:', err);
+        alert("Error generating PDF: " + err.message + ". Please ensure the backend is running.");
+      } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = 'Download PDF';
+      }
+    }
+
+    // Event listener for adding symptom with Enter key (now respects autocomplete)
+    document.getElementById('symptom-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // The keydown listener for autocomplete will handle if a suggestion is active
+            // If not, addSymptom() is called directly via the `keydown` event listener.
+        }
     });
-</script>
+
+    // Event listener for sending chat message with Enter key
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Initial setup when the page loads
+    updateSymptomDisplay();
+    renderHistory();
+
+    // Fetch available symptoms from the backend to populate the autocomplete list
+    fetch('https://curenova.onrender.com/symptoms')
+      .then(res => res.json())
+      .then(symptoms => {
+        allSymptoms = symptoms;
+      })
+      .catch(err => {
+        console.error('Failed to load symptom suggestions:', err);
+      });
+  </script>
 </body>
 </html>
